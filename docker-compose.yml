@@ -5,7 +5,7 @@ services:
   pretix:
     image: 'pretix/standalone:stable'
     container_name: pretix_app
-    restart: always 
+    restart: always
     depends_on:
       - db
       - redis
@@ -15,33 +15,36 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.frontend.rule=Host:tickets.chaostreff-flensburg.de" 
+      - "traefik.frontend.rule=Host:localhost"
       - "traefik.port=80"
+    ports:
+      - 80:80
     networks:
       - web
       - stack_network
 
   db:
-    image: mariadb:10
-    restart: always
+    image: postgres:12.0-alpine
+    container_name: database
+    ports:
+      - "5432:5432"
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=true 
-      - MYSQL_DATABASE=db
-      - MYSQL_USER=db
-      - MYSQL_PASSWORD=db
+      - POSTGRES_USER=pretix
+      - POSTGRES_PASSWORD=pretix
     volumes:
-      - /mnt/docker/pretix/mariadb:/var/lib/mysql
+      - /mnt/docker/pretix/postgresql:/var/lib/postgresql/data
     networks:
       - stack_network
-  
+
   redis:
     image: redis:latest
     restart: always
     networks:
       - stack_network
 
-networks: 
+networks:
   web:
     external: true
   stack_network:
     external: false
+
